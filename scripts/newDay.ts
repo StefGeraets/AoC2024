@@ -40,17 +40,34 @@ const getCustomInput = async () => {
 		},
 	});
 
-	const input = await res.text();
-	return input;
+	let available = true;
+	let input = await res.text();
+
+	if (res.status === 404) {
+		available = false;
+		input = "";
+		log(chalk.yellow("Custom input not yet available"));
+	}
+
+	return {
+		available,
+		input,
+	};
 };
 
-const copyNewDayFiles = (input?: string) => {
+const copyNewDayFiles = (puzzleInput?: {
+	available: boolean;
+	input: string;
+}) => {
 	fs.mkdirSync(newDayPath);
 	fs.copyFileSync(`${__dirname}/Puzzle.ts.tmpl`, `${newDayPath}/Puzzle.ts`);
-	fs.writeFileSync(`${newDayPath}/input.txt`, input ? input : "");
+	fs.writeFileSync(
+		`${newDayPath}/input.txt`,
+		puzzleInput?.available ? puzzleInput.input : "",
+	);
 
 	log(
-		input
+		puzzleInput?.available
 			? chalk.dim("Custom puzzle input copied")
 			: chalk.yellow("Make sure to copy your custom puzzle input"),
 	);
@@ -62,4 +79,8 @@ const copyNewDayFiles = (input?: string) => {
 	);
 };
 
-copyNewDayFiles(process.env.AOC_COOKIE ? await getCustomInput() : "");
+copyNewDayFiles(
+	process.env.AOC_COOKIE
+		? await getCustomInput()
+		: { available: false, input: "" },
+);
