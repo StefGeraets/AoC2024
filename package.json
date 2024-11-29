@@ -1,11 +1,19 @@
 {
-  "name": "aoc2024",
-  "module": "index.ts",
-  "type": "module",
-  "devDependencies": {
-    "@types/bun": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^5.0.0"
-  }
+	"name": "aoc2024",
+	"module": "index.ts",
+	"type": "module",
+	"scripts": {
+		"dev": "bun index.ts",
+		"day": "bun scripts/newDay.ts"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "1.9.4",
+		"@types/bun": "latest"
+	},
+	"peerDependencies": {
+		"typescript": "^5.0.0"
+	},
+	"dependencies": {
+		"chalk": "^5.3.0"
+	}
 }
