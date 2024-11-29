@@ -18,15 +18,48 @@ if (!day) {
 	process.exit();
 }
 
-log(`creating template for day ${day}`);
-const basePath = "days";
+log(`\n${chalk.bold(`Creating template for day ${day}`)}\n`);
 
-if (fs.existsSync(`${basePath}/${day}`)) {
-	log(`day ${day} already exists`);
+const basePath = "days";
+const newDayPath = `${basePath}/${day}`;
+
+if (fs.existsSync(newDayPath)) {
+	log(`${chalk.red.bold("ERROR:")} ${chalk.red(`day ${day} already exists`)}`);
 	process.exit(0);
 }
-const newDayPath = `${basePath}/${day}`;
-fs.mkdirSync(newDayPath);
-fs.copyFileSync(`${__dirname}/Puzzle.ts.tmpl`, `${newDayPath}/Puzzle.ts`);
-fs.writeFileSync(`${newDayPath}/input.txt`, "");
-fs.writeFileSync(`${newDayPath}/test.txt`, "");
+
+const AOC_INPUT_URL = `https://adventofcode.com/${process.env.YEAR}/day/${day}/input`;
+
+const getCustomInput = async () => {
+	log(chalk.dim("Fetching custom puzzle input"));
+	const res = await fetch(AOC_INPUT_URL, {
+		method: "GET",
+		credentials: "same-origin",
+		headers: {
+			Cookie: `session=${process.env.AOC_COOKIE}`,
+		},
+	});
+
+	const input = await res.text();
+	return input;
+};
+
+const copyNewDayFiles = (input?: string) => {
+	fs.mkdirSync(newDayPath);
+	fs.copyFileSync(`${__dirname}/Puzzle.ts.tmpl`, `${newDayPath}/Puzzle.ts`);
+	fs.writeFileSync(`${newDayPath}/input.txt`, input ? input : "");
+
+	log(
+		input
+			? chalk.dim("Custom puzzle input copied")
+			: chalk.yellow("Make sure to copy your custom puzzle input"),
+	);
+
+	fs.writeFileSync(`${newDayPath}/test-part1.txt`, "");
+	fs.writeFileSync(`${newDayPath}/test-part2.txt`, "");
+	log(
+		`${chalk.green("Files copied")}\n\n${chalk.green.bold("✅ DONE | Good luck with coding day")}`,
+	);
+};
+
+copyNewDayFiles(process.env.AOC_COOKIE ? await getCustomInput() : "");
